@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.RenwuCommentbackDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.renwu_id as renwuId
+        ,a.jiequyonghu_id as jiequyonghuId
+        ,a.renwu_commentback_pingfen_number as renwuCommentbackPingfenNumber
+        ,a.renwu_commentback_text as renwuCommentbackText
+        ,a.insert_time as insertTime
+        ,a.reply_text as replyText
+        ,a.update_time as updateTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.RenwuCommentbackView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,jiequyonghu.jiequyonghu_name as jiequyonghuName
+        ,jiequyonghu.jiequyonghu_phone as jiequyonghuPhone
+        ,jiequyonghu.jiequyonghu_id_number as jiequyonghuIdNumber
+        ,jiequyonghu.jiequyonghu_photo as jiequyonghuPhoto
+        ,jiequyonghu.new_money as newMoney
+        ,jiequyonghu.wanchenglv as wanchenglv
+        ,jiequyonghu.jiequyonghu_email as jiequyonghuEmail
+        ,renwu.fabuyonghu_id as renwuFabuyonghuId
+        ,renwu.renwu_name as renwuName
+        ,renwu.renwu_uuid_number as renwuUuidNumber
+        ,renwu.renwu_photo as renwuPhoto
+        ,renwu.renwu_file as renwuFile
+        ,renwu.zhixing_time as zhixingTime
+        ,renwu.renwu_address as renwuAddress
+        ,renwu.renwu_types as renwuTypes
+        ,renwu.renwu_jine as renwuJine
+        ,renwu.renwu_clicknum as renwuClicknum
+        ,renwu.renwu_content as renwuContent
+        ,renwu.renwu_zhuangtai_types as renwuZhuangtaiTypes
+        ,renwu.renwu_delete as renwuDelete
+
+        FROM renwu_commentback  a
+        left JOIN jiequyonghu jiequyonghu ON a.jiequyonghu_id = jiequyonghu.id
+        left JOIN renwu renwu ON a.renwu_id = renwu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.renwuId != null and params.renwuId != ''">
+                and (
+                    a.renwu_id = #{params.renwuId}
+                )
+            </if>
+            <if test="params.jiequyonghuId != null and params.jiequyonghuId != ''">
+                and (
+                    a.jiequyonghu_id = #{params.jiequyonghuId}
+                )
+            </if>
+            <if test="params.renwuCommentbackPingfenNumberStart != null and params.renwuCommentbackPingfenNumberStart != ''">
+                <![CDATA[  and a.renwu_commentback_pingfen_number >= #{params.renwuCommentbackPingfenNumberStart}   ]]>
+            </if>
+            <if test="params.renwuCommentbackPingfenNumberEnd != null and params.renwuCommentbackPingfenNumberEnd != ''">
+                <![CDATA[  and a.renwu_commentback_pingfen_number <= #{params.renwuCommentbackPingfenNumberEnd}   ]]>
+            </if>
+             <if test="params.renwuCommentbackPingfenNumber != null and params.renwuCommentbackPingfenNumber != ''">
+                and a.renwu_commentback_pingfen_number = #{params.renwuCommentbackPingfenNumber}
+             </if>
+            <if test=" params.renwuCommentbackText != '' and params.renwuCommentbackText != null and params.renwuCommentbackText != 'null' ">
+                and a.renwu_commentback_text like CONCAT('%',#{params.renwuCommentbackText},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.replyText != '' and params.replyText != null and params.replyText != 'null' ">
+                and a.reply_text like CONCAT('%',#{params.replyText},'%')
+            </if>
+            <if test=" params.updateTimeStart != '' and params.updateTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) >= UNIX_TIMESTAMP(#{params.updateTimeStart}) ]]>
+            </if>
+            <if test=" params.updateTimeEnd != '' and params.updateTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) <= UNIX_TIMESTAMP(#{params.updateTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断接取用户的id不为空 -->
+            <if test=" params.jiequyonghuIdNotNull != '' and params.jiequyonghuIdNotNull != null and params.jiequyonghuIdNotNull != 'null' ">
+                and a.jiequyonghu_id IS NOT NULL
+            </if>
+            <if test=" params.jiequyonghuName != '' and params.jiequyonghuName != null and params.jiequyonghuName != 'null' ">
+                and jiequyonghu.jiequyonghu_name like CONCAT('%',#{params.jiequyonghuName},'%')
+            </if>
+            <if test=" params.jiequyonghuPhone != '' and params.jiequyonghuPhone != null and params.jiequyonghuPhone != 'null' ">
+                and jiequyonghu.jiequyonghu_phone like CONCAT('%',#{params.jiequyonghuPhone},'%')
+            </if>
+            <if test=" params.jiequyonghuIdNumber != '' and params.jiequyonghuIdNumber != null and params.jiequyonghuIdNumber != 'null' ">
+                and jiequyonghu.jiequyonghu_id_number like CONCAT('%',#{params.jiequyonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and jiequyonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and jiequyonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.wanchenglvStart != null  and params.wanchenglvStart != '' ">
+                <![CDATA[  and jiequyonghu.wanchenglv >= #{params.wanchenglvStart}   ]]>
+            </if>
+            <if test="params.wanchenglvEnd != null  and params.wanchenglvEnd != '' ">
+                <![CDATA[  and jiequyonghu.wanchenglv <= #{params.wanchenglvEnd}   ]]>
+            </if>
+            <if test="params.wanchenglv != null  and params.wanchenglv != '' ">
+                and jiequyonghu.wanchenglv = #{params.wanchenglv}
+            </if>
+            <if test=" params.jiequyonghuEmail != '' and params.jiequyonghuEmail != null and params.jiequyonghuEmail != 'null' ">
+                and jiequyonghu.jiequyonghu_email like CONCAT('%',#{params.jiequyonghuEmail},'%')
+            </if>
+                <!-- 判断任务的id不为空 -->
+            <if test=" params.renwuIdNotNull != '' and params.renwuIdNotNull != null and params.renwuIdNotNull != 'null' ">
+                and a.renwu_id IS NOT NULL
+            </if>
+            <if test="params.fabuyonghuId != null  and params.fabuyonghuId != ''">
+                and renwu.fabuyonghu_id = #{params.fabuyonghuId}
+            </if>
+            <if test=" params.renwuName != '' and params.renwuName != null and params.renwuName != 'null' ">
+                and renwu.renwu_name like CONCAT('%',#{params.renwuName},'%')
+            </if>
+            <if test=" params.renwuUuidNumber != '' and params.renwuUuidNumber != null and params.renwuUuidNumber != 'null' ">
+                and renwu.renwu_uuid_number like CONCAT('%',#{params.renwuUuidNumber},'%')
+            </if>
+            <if test=" params.zhixingTimeStart != '' and params.zhixingTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(renwu.zhixing_time) >= UNIX_TIMESTAMP(#{params.zhixingTimeStart}) ]]>
+            </if>
+            <if test=" params.zhixingTimeEnd != '' and params.zhixingTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(renwu.zhixing_time) <= UNIX_TIMESTAMP(#{params.zhixingTimeEnd}) ]]>
+            </if>
+            <if test=" params.renwuAddress != '' and params.renwuAddress != null and params.renwuAddress != 'null' ">
+                and renwu.renwu_address like CONCAT('%',#{params.renwuAddress},'%')
+            </if>
+            <if test="params.renwuTypes != null  and params.renwuTypes != ''">
+                and renwu.renwu_types = #{params.renwuTypes}
+            </if>
+
+            <if test="params.renwuJineStart != null ">
+                <![CDATA[  and renwu.renwu_jine >= #{params.renwuJineStart}   ]]>
+            </if>
+            <if test="params.renwuJineEnd != null ">
+                <![CDATA[  and renwu.renwu_jine <= #{params.renwuJineEnd}   ]]>
+            </if>
+            <if test="params.renwuClicknumStart != null  and params.renwuClicknumStart != '' ">
+                <![CDATA[  and renwu.renwu_clicknum >= #{params.renwuClicknumStart}   ]]>
+            </if>
+            <if test="params.renwuClicknumEnd != null  and params.renwuClicknumEnd != '' ">
+                <![CDATA[  and renwu.renwu_clicknum <= #{params.renwuClicknumEnd}   ]]>
+            </if>
+            <if test="params.renwuClicknum != null  and params.renwuClicknum != '' ">
+                and renwu.renwu_clicknum = #{params.renwuClicknum}
+            </if>
+            <if test=" params.renwuContent != '' and params.renwuContent != null and params.renwuContent != 'null' ">
+                and renwu.renwu_content like CONCAT('%',#{params.renwuContent},'%')
+            </if>
+            <if test="params.renwuZhuangtaiTypes != null  and params.renwuZhuangtaiTypes != ''">
+                and renwu.renwu_zhuangtai_types = #{params.renwuZhuangtaiTypes}
+            </if>
+
+            <if test="params.renwuDeleteStart != null  and params.renwuDeleteStart != '' ">
+                <![CDATA[  and renwu.renwu_delete >= #{params.renwuDeleteStart}   ]]>
+            </if>
+            <if test="params.renwuDeleteEnd != null  and params.renwuDeleteEnd != '' ">
+                <![CDATA[  and renwu.renwu_delete <= #{params.renwuDeleteEnd}   ]]>
+            </if>
+            <if test="params.renwuDelete != null  and params.renwuDelete != '' ">
+                and renwu.renwu_delete = #{params.renwuDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(renwu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(renwu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>任务详情页</title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="../../css/style.css"/>
+    <!-- 主题（主要颜色设置） -->
+    <link rel="stylesheet" href="../../css/theme.css"/>
+    <!-- 通用的css -->
+    <link rel="stylesheet" href="../../css/common.css"/>
+    <link rel="stylesheet" href="../../xznstatic/css/bootstrap.min.css">
+</head>
+<style>
+    .particulars {
+        width: 90%;
+        background-color: #fff;
+        border-bottom: 1px dotted var(--publicMainColor);
+        padding: 10px 0;
+    }
+
+    .dataExhibition {
+        display: inline-block;
+        width: 60%;
+    }
+
+    .displayBianhao {
+        display: inline-block;
+        width: auto;
+    }
+
+    .detail-tab .layui-tab-card>.layui-tab-title .layui-this{
+        border: 2px dotted var(--publicMainColor);
+        background-color: #fff;
+        color: #000;
+    }</style>
+<body>
+
+    <div id="app">
+<div style="width: 1000px;margin: 10px auto;height: auto;">
+    <div style="border: 1px  dotted var(--publicMainColor);border-radius: 15px;margin-top:25px;height: 50px;line-height: 50px;padding-left: 15px;display: flex;justify-content: space-between;align-items: center;padding-right: 15px;">
+        <span>
+            <a style="color: #000;" href="../home/home.html">
+                首页
+            </a>/
+            <a>
+                <cite style="color: #815476;">
+                    {{title}}
+                </cite>
+            </a>
+        </span>
+        <a v-if='storeupFlag' @click="addRenwuCollection()" href="javascript:void(0)" style="text-decoration: none;display: block;width: 40px;height: 40px; border-radius: 50%;text-align: center;line-height: 40px;background-color: #fff;">
+            <i class="layui-icon" style="font-size: 40px;color: red;" v-if='true'>&#xe67a;</i>
+        </a>
+        <a style="text-decoration: none;display: block;width: 40px;height: 40px; border-radius: 50%;text-align: center;line-height: 40px;background-color: #fff;"
+           v-if='!storeupFlag' @click="addRenwuCollection()" href="javascript:void(0)">
+            <i class="layui-icon" style="font-size: 40px;color: red;" v-if='true'>&#xe67b;</i>
+        </a>
+    </div>
+    <div style="display: flex;margin-top: 20px;">
+        <!-- 详情介绍 -->
+        <div style="width: 50%;height: auto;">
+            <div class="particulars" style="text-align: center;font-size: 18px;">
+                <span>{{title}}</span>
+            </div>
+            <!--<div class="particulars">
+                <span class="displayBianhao">评分:</span>
+                <span class="dataExhibition">
+                    <el-rate v-model="totalScore" disabled show-score text-color="#ff9900"
+                             score-template="{value}">
+                    </el-rate>
+                </span>
+            </div>-->
+                  <div v-if="detail.renwuUuidNumber" class="particulars">
+                      <span class="displayBianhao">任务编号:</span>
+                      <span class="dataExhibition"> {{detail.renwuUuidNumber}} </span>
+                  </div>
+                  <div v-if="detail.fabuyonghuName" class="particulars">
+                      <span class="displayBianhao">发布人:</span>
+                      <span class="dataExhibition"> {{detail.fabuyonghuName}} </span>
+                  </div>
+                  <div v-if="detail.fabuyonghuPhone" class="particulars">
+                      <span class="displayBianhao">发布人联系方式:</span>
+                      <span class="dataExhibition"> {{detail.fabuyonghuPhone}} </span>
+                  </div>
+                  <div @click="jump(baseUrl+detail.renwuFile)" class="particulars">
+                      <span class="displayBianhao">任务附件:</span>
+                      <span class="dataExhibition"> 任务附件下载 </span>
+                  </div>
+                  <div v-if="detail.zhixingTime" class="particulars">
+                      <span class="displayBianhao">任务执行时间:</span>
+                      <span class="dataExhibition"> {{detail.zhixingTime}} </span>
+                  </div>
+                  <div v-if="detail.renwuAddress" class="particulars">
+                      <span class="displayBianhao">执行地点:</span>
+                      <span class="dataExhibition"> {{detail.renwuAddress}} </span>
+                  </div>
+                  <div v-if="detail.renwuTypes" class="particulars">
+                      <span class="displayBianhao">任务类型:</span>
+                      <span class="dataExhibition"> {{detail.renwuValue}} </span>
+                  </div>
+                  <div v-if="detail.renwuJine" class="particulars">
+                      <span class="displayBianhao">悬赏金额:</span>
+                      <span class="dataExhibition"> {{detail.renwuJine}} </span>
+                  </div>
+                  <div v-if="detail.renwuClicknum" class="particulars">
+                      <span class="displayBianhao">任务热度:</span>
+                      <span class="dataExhibition"> {{detail.renwuClicknum}} </span>
+                  </div>
+                  <div v-if="detail.renwuZhuangtaiTypes" class="particulars">
+                      <span class="displayBianhao">任务状态:</span>
+                      <span class="dataExhibition"> {{detail.renwuZhuangtaiValue}} </span>
+                  </div>
+        </div>
+        <!-- 图片 -->
+        <div style="width: 50%;height: auto;">
+            <div>
+                <div v-if="swiperList.length" v-for="(item,index) in swiperList" :key="index">
+                    <img style="width: 100%;height: 100%;object-fit:cover;" :src="baseUrl+item" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 按钮 -->
+    <div style="width: 100%;">
+        <div  style="display: flex;margin-top: 30px;justify-content: center;border-bottom:1px dotted var(--publicMainColor) ;border-top:1px dotted var(--publicMainColor) ;padding: 20px;align-items: center;">
+
+            <button v-if="detail.renwuZhuangtaiTypes==1" @click="addRenwuOrder()" style="height:auto;"
+                    :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 5px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(23, 124, 176, 1)","color":"rgba(255, 255, 255, 1)","borderRadius":"6px","borderWidth":"0","width":"auto","lineHeight":"40px","fontSize":"16px","borderStyle":"solid"}'
+                    type="button" class="layui-btn btn-submit">
+                申请接受任务
+            </button>
+            <div class="num-picker">
+                <button @click="zixunwenti()" style="height:auto;" :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 5px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(23, 124, 176, 1)","color":"rgba(255, 255, 255, 1)","borderRadius":"6px","borderWidth":"0","width":"auto","lineHeight":"40px","fontSize":"16px","borderStyle":"solid"}' type="button" class="layui-btn btn-submit">
+                    任务咨询
+                </button>
+            </div>
+            <!--
+             <button @click="renwuYuyue()" style="height:auto;" :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 5px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(23, 124, 176, 1)","color":"rgba(255, 255, 255, 1)","borderRadius":"6px","borderWidth":"0","width":"auto","lineHeight":"40px","fontSize":"16px","borderStyle":"solid"}' type="button" class="layui-btn btn-submit">
+                 立即预约
+             </button>
+        -->
+        </div>
+    </div>
+
+    <!-- 视频 -->
+
+
+    <!-- 评论 -->
+    <div class="layui-row detail-tab" style="border: none;box-shadow: none;">
+        <div class="layui-tab layui-tab-card" style="overflow: hidden;border: none; box-shadow: none;">
+            <ul class="layui-tab-title " :style='{"backgroundColor":"#fff","fontSize":"14px"}' style="color: var(--publicMainColor);border: none;">
+                <li class="layui-this">任务要求</li>
+                <li>评论</li>
+            </ul>
+
+            <div class="layui-tab-content" style="border: 1px dotted var(--publicMainColor);border-radius: 15px;margin-top: 10px;margin-bottom: 50px;">
+                <div class="layui-tab-item layui-show">
+                    <div v-html="myFilters(detail.renwuContent)"></div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="message-container">
+                        <div class="message-list"
+                             :style='{"padding":"0 20px 20px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0","borderColor":"var(--publicSubColor)}","backgroundColor":"#fff","borderRadius":"4px","borderWidth":"0","borderStyle":"dotted"}'>
+                            <div v-for="(item,index) in renwuCommentbackDataList" v-bind:key="index"
+                                 :style='{"padding":"20px 0","boxShadow":"0 0 0px rgba(255,0,0,0)","margin":"0","borderColor":"rgba(0,0,0,.3)","backgroundColor":"#fff","borderRadius":"0","borderWidth":"0 0 1px 0","borderStyle":"dotted"}'
+                                 class="message-item">
+                                <div class="username-container" style="display: flex;justify-content: space-between;">
+                                    <div style="display:flex;">
+                                        <img :src="baseUrl+item.jiequyonghuPhoto"
+                                             :style='{"boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 10px 0 0","borderColor":"rgba(0,0,0,.3)","borderRadius":"50%","borderWidth":"0","width":"40px","borderStyle":"dotted","height":"40px"}'
+                                             class="avator">
+                                        <span style="display: inline-block;"
+                                              :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0","borderColor":"rgba(0,0,0,.3)","backgroundColor":"#fff","color":"rgba(6, 82, 121, 1)","borderRadius":"4px","borderWidth":"0","width":"auto","lineHeight":"28px","fontSize":"14px","borderStyle":"dotted"}'
+                                              class="username">
+                                            {{item.jiequyonghuName}}
+                                        </span>
+                                        <el-rate v-if="item.renwuCommentbackPingfenNumber" v-model="item.renwuCommentbackPingfenNumber" disabled show-score text-color="#ff9900"
+                                                 score-template="{value}">
+                                        </el-rate>
+                                    </div>
+                                    <span style="font-size: 12px">{{item.insertTime}}</span>
+                                </div>
+                                <div class="content" style="margin: 0;flex: 1;">
+												<span class="message main_color" style="display: inline-block;"
+                                                      :style='{"padding":"8px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"8px 0 0 50px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(255, 0, 0, 0)","borderRadius":"4px","borderWidth":"0","fontSize":"14px","borderStyle":"dotted"}'>
+													留言:{{item.renwuCommentbackText}}
+												</span>
+                                </div>
+                                <div v-if="item.replyText" class="content" style="margin: 0;flex: 1;">
+												<span class="message sub_color" style="display: inline-block;"
+                                                      :style='{"padding":"8px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"8px 0 0 50px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(255, 0, 0, 0)","borderRadius":"4px","borderWidth":"0","fontSize":"14px","borderStyle":"dotted"}'>
+													回复:{{item.replyText}}
+												</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pager" id="CommentbackPager"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    </div>
+
+
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/vue.js"></script>
+    <!-- 引入element组件库 -->
+    <script src="../../xznstatic/js/element.min.js"></script>
+    <!-- 引入element样式 -->
+    <link rel="stylesheet" href="../../xznstatic/css/element.min.css">
+    <!-- 组件配置信息 -->
+    <script src="../../js/config.js"></script>
+    <!-- 扩展插件配置信息 -->
+    <script src="../../modules/config.js"></script>
+    <!-- 工具方法 -->
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        Vue.prototype.myFilters= function (msg) {
+            if(msg != null){
+                return msg.replace(/\n/g, "<br>");
+            }else{
+                return "";
+            }
+        };
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                //当前登录用户信息
+                user:{},
+                // 轮播图
+                swiperList: [],//用于当前表的图片
+                // 数据详情
+                detail: {
+                    id: 0
+                },
+                // 商品标题
+                title: '',
+                totalScore: 0,//评分
+                baseUrl:"",//路径
+                storeupFlag: 0,//收藏 [0为收藏 1已收藏]
+                //系统推荐
+                renwuRecommendList: [],
+    <!-- 是订单并且非座位才有购物车 -->
+                // 加入购物车数量
+                buyNumber: 1,
+                // 当前详情页表
+                detailTable: 'renwu',
+                // 评价列表
+                renwuCommentbackDataList: [],
+            },
+            methods: {
+            //咨询问题
+            zixunwenti() {
+                let _this = this
+                layui.layer.open({
+                    type: 2,
+                    title: '咨询',
+                    area: ['600px', '600px'],
+                    content: '../renwuChat/list.html?fabuyonghuId='+_this.detail.fabuyonghuId
+                });
+            },                //分享
+                share(){
+                    let element = createElement("http://localhost:8080/xiaoyuanxuanshang/front/index.html?url="+"./pages/renwu/detail.html?id="+this.id);
+                    element.select();
+                    element.setSelectionRange(0, element.value.length);
+                    document.execCommand('copy');
+                    element.remove();
+                    layui.layer.msg('复制分享页面成功,快去分享吧!', {time: 2000,icon: 6});
+                },
+
+                jump(url) {
+                    jump(url)
+                },
+                isAuth(tablename, button) {
+                    return isFrontAuth(tablename, button)
+                },
+                //预约
+                renwuYuyue(){
+                    let _this = this;
+                    var mymessage = confirm("确定要预约吗？");if(!mymessage){return false;}
+                    // localStorage.setItem('renwuId', _this.detail.id);
+                    // _this.jump("../renwuOrder/add.html");
+
+                    let data={
+                        renwuId:_this.detail.id,
+                        jiequyonghuId:localStorage.getItem("userid"),
+                        renwuOrderYesnoTypes:1,
+                    }
+                    // 提交数据
+                    layui.http.requestJson('renwuOrder/add', 'post', data, function (res) {
+                        if(res.code == 0) {
+                            layui.layer.msg('预约成功', {
+                                time: 2000,
+                                icon: 6
+                            }, function () {
+                                _this.jump("../renwuOrder/list.html");
+                            });
+                        }else{
+                            layui.layer.msg(res.msg, {
+                                time: 5000,
+                                icon: 5
+                            });
+                        }
+                    });
+                },
+                // 收藏商品
+                addRenwuCollection() {
+                    let _this = this;
+                    layui.http.request('renwuCollection/list', 'get', {
+                        page: 1,
+                        limit: 1,
+                        renwuId: _this.detail.id,
+                        renwuCollectionTypes: 1,
+                        jiequyonghuId: localStorage.getItem('userid'),
+                    }, (res) => {
+                        if (res.data.list.length == 1) {
+                            layui.http.requestJson('renwuCollection/delete', 'post', [res.data.list[0].id], function (res) {
+                                layui.layer.msg('取消成功', {
+                                    time: 1000,
+                                    icon: 5
+                                }, function () {
+                                    window.location.reload();
+                                });
+                            });
+                            return false;
+                        }
+                        layui.http.requestJson('renwuCollection/add', 'post', {
+                            jiequyonghuId: localStorage.getItem('userid'),
+                            renwuId: _this.detail.id,
+                            renwuCollectionTypes: 1,
+                        }, function (res) {
+                            layui.layer.msg('收藏成功', {
+                                time: 1000,
+                                icon: 6
+                            }, function () {
+                                window.location.reload();
+                            });
+                        });
+                    });
+                },
+                // 立即购买
+                addRenwuOrder() {
+                    // localStorage.setItem('renwuId', this.detail.id);
+                    // this.jump("../renwuOrder/add.html");
+
+
+                    var mymessage = confirm("确定要接取这个任务吗？");if(!mymessage){return false;}
+                    let data={
+                        renwuId:this.detail.id,
+                        jiequyonghuId:localStorage.getItem("userid"),
+                    }
+                    // 提交数据
+                    layui.http.requestJson('renwuOrder/add', 'post', data, function (res) {
+                        if(res.code == 0) {
+                            layui.layer.msg('申请接取成功,请等待审核', {
+                                time: 2000,
+                                icon: 6
+                            }, function () {
+                                this.jump("../renwuOrder/list.html");
+                            });
+                        }else{
+                            layui.layer.msg(res.msg, {
+                                time: 5000,
+                                icon: 5
+                            });
+                        }
+                    });
+                },
+
+            }
+        });
+
+        layui.use(['layer', 'form', 'element', 'carousel', 'http', 'jquery', 'laypage', 'util'], function () {
+            var layer = layui.layer;
+            var util = layui.util;
+            var element = layui.element;
+            var form = layui.form;
+            var carousel = layui.carousel;
+            var http = layui.http;
+            var jquery = layui.jquery;
+            var laypage = layui.laypage;
+            vue.baseUrl = http.baseurl
+
+            localStorage.setItem("goUtl","./pages/renwu/detail.html?id="+ http.getParam('id'))
+
+            var limit = 10;
+
+            let table = localStorage.getItem("userTable");
+            if(table){
+                http.request(table+"/session", 'get', {}, function (data) {
+                    vue.user = data.data;
+                });
+            }
+
+            // 数据ID
+            var id = http.getParam('id');
+            vue.detail.id = id;
+            // 数据信息
+            http.request(`${vue.detailTable}/detail/` + id, 'get', {}, function (res) {
+                // 详情信息
+                vue.detail = res.data;
+                vue.title = vue.detail.renwuName;
+                vue.detail.renwuContent = vue.detail.renwuContent.replaceAll("src=\"upload/","src=\""+vue.baseUrl+"upload/");
+                // 轮播图片
+                vue.swiperList = vue.detail.renwuPhoto ? vue.detail.renwuPhoto.split(",") : [];
+                // 轮播图
+                vue.$nextTick(() => {
+                    carousel.render({
+                        elem: '#swiper',
+                        width: '420px',
+                        height: '400px',
+                        arrow: 'hover',
+                        anim: 'default',
+                        autoplay: 'true',
+                        interval: '3000',
+                        indicator: 'inside'
+                    });
+                });
+
+            });
+
+
+            // 系统推荐
+            http.request(`renwu/gexingtuijian`, 'get', {
+                page: 1,
+                limit: 5,
+                renwuTypes: vue.detail.renwuTypes,
+                renwuDelete: 1,
+                renwuYesnoTypes:2,//审核通过的
+                renwuZhuangtaiTypes: vue.detail.renwuZhuangtaiTypes,
+            }, function (res) {
+                vue.renwuRecommendList = res.data.list;
+            });
+
+            if (localStorage.getItem('userid')) {
+                http.request('renwuCollection/list', 'get', {
+                    page: 1,
+                    limit: 1,
+                    renwuId: vue.detail.id,
+                    jiequyonghuId: localStorage.getItem('userid'),
+                }, function (res) {
+                    if(res.data.total >0){
+                        res.data.list.forEach(element => {
+                            if (element.renwuCollectionTypes == 1) {
+                                vue.storeupFlag = 1;
+                            }
+                            if (element.renwuCollectionTypes == 2) {
+                                vue.zanFlag = 1;
+                            }
+                            if (element.renwuCollectionTypes == 3) {
+                                vue.caiFlag = 1;
+                            }
+                        });
+
+                    }
+                });
+            }
+
+                /*
+					 tableName 查询表
+				     condition1 条件1
+				     condition1Value 条件1值
+				     average 计算平均评分
+				* */
+            http.request(`queryScore`, 'get', {
+                tableName: 'renwu_commentback',
+                average: 'renwu_commentback_pingfen_number',
+                condition1: 'renwu_id',
+                condition1Value: vue.detail.id,
+            }, function(res) {
+                if (res.data) {
+                    vue.totalScore = Number(res.data.value.toFixed(1));
+                } else {
+                    vue.totalScore = 0
+                }
+            });
+
+            // 获取评价
+            http.request(`${vue.detailTable}Commentback/list`, 'get', {
+                page: 1,
+                limit: limit,
+                renwuId: vue.detail.id
+            }, function (res) {
+                vue.renwuCommentbackDataList = res.data.list;
+                // 分页
+                laypage.render({
+                    elem: 'renwuCommentbackPager',
+                    count: res.data.total,
+                    limit: limit,
+                    jump: function (obj, first) {
+                        //首次不执行
+                        if (!first) {
+                            http.request(`${vue.detailTable}Commentback/list`, 'get', {
+                                page: obj.curr,
+                                limit: obj.limit,
+                                renwuId: vue.detail.id
+                            }, function (res) {
+                                vue.renwuCommentbackDataList = res.data.list
+                            })
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

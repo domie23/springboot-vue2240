@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.RenwuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.fabuyonghu_id as fabuyonghuId
+        ,a.renwu_name as renwuName
+        ,a.renwu_uuid_number as renwuUuidNumber
+        ,a.renwu_photo as renwuPhoto
+        ,a.renwu_file as renwuFile
+        ,a.zhixing_time as zhixingTime
+        ,a.renwu_address as renwuAddress
+        ,a.renwu_types as renwuTypes
+        ,a.renwu_jine as renwuJine
+        ,a.renwu_clicknum as renwuClicknum
+        ,a.renwu_content as renwuContent
+        ,a.renwu_zhuangtai_types as renwuZhuangtaiTypes
+        ,a.renwu_delete as renwuDelete
+        ,a.insert_time as insertTime
+        ,a.renwu_yesno_types as renwuYesnoTypes
+        ,a.renwu_yesno_text as renwuYesnoText
+        ,a.renwu_shenhe_time as renwuShenheTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.RenwuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,fabuyonghu.fabuyonghu_name as fabuyonghuName
+        ,fabuyonghu.fabuyonghu_phone as fabuyonghuPhone
+        ,fabuyonghu.fabuyonghu_id_number as fabuyonghuIdNumber
+        ,fabuyonghu.fabuyonghu_photo as fabuyonghuPhoto
+        ,fabuyonghu.new_money as newMoney
+        ,fabuyonghu.fabuyonghu_email as fabuyonghuEmail
+
+        FROM renwu  a
+        left JOIN fabuyonghu fabuyonghu ON a.fabuyonghu_id = fabuyonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.fabuyonghuId != null and params.fabuyonghuId != ''">
+                and (
+                    a.fabuyonghu_id = #{params.fabuyonghuId}
+                )
+            </if>
+            <if test=" params.renwuName != '' and params.renwuName != null and params.renwuName != 'null' ">
+                and a.renwu_name like CONCAT('%',#{params.renwuName},'%')
+            </if>
+            <if test=" params.renwuUuidNumber != '' and params.renwuUuidNumber != null and params.renwuUuidNumber != 'null' ">
+                and a.renwu_uuid_number like CONCAT('%',#{params.renwuUuidNumber},'%')
+            </if>
+            <if test=" params.zhixingTimeStart != '' and params.zhixingTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhixing_time) >= UNIX_TIMESTAMP(#{params.zhixingTimeStart}) ]]>
+            </if>
+            <if test=" params.zhixingTimeEnd != '' and params.zhixingTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.zhixing_time) <= UNIX_TIMESTAMP(#{params.zhixingTimeEnd}) ]]>
+            </if>
+            <if test=" params.renwuAddress != '' and params.renwuAddress != null and params.renwuAddress != 'null' ">
+                and a.renwu_address like CONCAT('%',#{params.renwuAddress},'%')
+            </if>
+            <if test="params.renwuTypes != null and params.renwuTypes != ''">
+                and a.renwu_types = #{params.renwuTypes}
+            </if>
+            <if test="params.renwuJineStart != null ">
+                <![CDATA[  and a.renwu_jine >= #{params.renwuJineStart}   ]]>
+            </if>
+            <if test="params.renwuJineEnd != null ">
+                <![CDATA[  and a.renwu_jine <= #{params.renwuJineEnd}   ]]>
+            </if>
+            <if test="params.renwuClicknumStart != null and params.renwuClicknumStart != ''">
+                <![CDATA[  and a.renwu_clicknum >= #{params.renwuClicknumStart}   ]]>
+            </if>
+            <if test="params.renwuClicknumEnd != null and params.renwuClicknumEnd != ''">
+                <![CDATA[  and a.renwu_clicknum <= #{params.renwuClicknumEnd}   ]]>
+            </if>
+             <if test="params.renwuClicknum != null and params.renwuClicknum != ''">
+                and a.renwu_clicknum = #{params.renwuClicknum}
+             </if>
+            <if test=" params.renwuContent != '' and params.renwuContent != null and params.renwuContent != 'null' ">
+                and a.renwu_content like CONCAT('%',#{params.renwuContent},'%')
+            </if>
+            <if test="params.renwuZhuangtaiTypes != null and params.renwuZhuangtaiTypes != ''">
+                and a.renwu_zhuangtai_types = #{params.renwuZhuangtaiTypes}
+            </if>
+            <if test="params.renwuDeleteStart != null and params.renwuDeleteStart != ''">
+                <![CDATA[  and a.renwu_delete >= #{params.renwuDeleteStart}   ]]>
+            </if>
+            <if test="params.renwuDeleteEnd != null and params.renwuDeleteEnd != ''">
+                <![CDATA[  and a.renwu_delete <= #{params.renwuDeleteEnd}   ]]>
+            </if>
+             <if test="params.renwuDelete != null and params.renwuDelete != ''">
+                and a.renwu_delete = #{params.renwuDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.renwuYesnoTypes != null and params.renwuYesnoTypes != ''">
+                and a.renwu_yesno_types = #{params.renwuYesnoTypes}
+            </if>
+            <if test=" params.renwuYesnoText != '' and params.renwuYesnoText != null and params.renwuYesnoText != 'null' ">
+                and a.renwu_yesno_text like CONCAT('%',#{params.renwuYesnoText},'%')
+            </if>
+            <if test=" params.renwuShenheTimeStart != '' and params.renwuShenheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.renwu_shenhe_time) >= UNIX_TIMESTAMP(#{params.renwuShenheTimeStart}) ]]>
+            </if>
+            <if test=" params.renwuShenheTimeEnd != '' and params.renwuShenheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.renwu_shenhe_time) <= UNIX_TIMESTAMP(#{params.renwuShenheTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断发布用户的id不为空 -->
+            <if test=" params.fabuyonghuIdNotNull != '' and params.fabuyonghuIdNotNull != null and params.fabuyonghuIdNotNull != 'null' ">
+                and a.fabuyonghu_id IS NOT NULL
+            </if>
+            <if test=" params.fabuyonghuName != '' and params.fabuyonghuName != null and params.fabuyonghuName != 'null' ">
+                and fabuyonghu.fabuyonghu_name like CONCAT('%',#{params.fabuyonghuName},'%')
+            </if>
+            <if test=" params.fabuyonghuPhone != '' and params.fabuyonghuPhone != null and params.fabuyonghuPhone != 'null' ">
+                and fabuyonghu.fabuyonghu_phone like CONCAT('%',#{params.fabuyonghuPhone},'%')
+            </if>
+            <if test=" params.fabuyonghuIdNumber != '' and params.fabuyonghuIdNumber != null and params.fabuyonghuIdNumber != 'null' ">
+                and fabuyonghu.fabuyonghu_id_number like CONCAT('%',#{params.fabuyonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and fabuyonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and fabuyonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.fabuyonghuEmail != '' and params.fabuyonghuEmail != null and params.fabuyonghuEmail != 'null' ">
+                and fabuyonghu.fabuyonghu_email like CONCAT('%',#{params.fabuyonghuEmail},'%')
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

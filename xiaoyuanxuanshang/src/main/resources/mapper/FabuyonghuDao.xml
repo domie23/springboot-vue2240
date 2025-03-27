@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.FabuyonghuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.fabuyonghu_name as fabuyonghuName
+        ,a.fabuyonghu_phone as fabuyonghuPhone
+        ,a.fabuyonghu_id_number as fabuyonghuIdNumber
+        ,a.fabuyonghu_photo as fabuyonghuPhoto
+        ,a.sex_types as sexTypes
+        ,a.new_money as newMoney
+        ,a.fabuyonghu_email as fabuyonghuEmail
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.FabuyonghuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM fabuyonghu  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.fabuyonghuName != '' and params.fabuyonghuName != null and params.fabuyonghuName != 'null' ">
+                and a.fabuyonghu_name like CONCAT('%',#{params.fabuyonghuName},'%')
+            </if>
+            <if test=" params.fabuyonghuPhone != '' and params.fabuyonghuPhone != null and params.fabuyonghuPhone != 'null' ">
+                and a.fabuyonghu_phone like CONCAT('%',#{params.fabuyonghuPhone},'%')
+            </if>
+            <if test=" params.fabuyonghuIdNumber != '' and params.fabuyonghuIdNumber != null and params.fabuyonghuIdNumber != 'null' ">
+                and a.fabuyonghu_id_number like CONCAT('%',#{params.fabuyonghuIdNumber},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and a.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and a.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.fabuyonghuEmail != '' and params.fabuyonghuEmail != null and params.fabuyonghuEmail != 'null' ">
+                and a.fabuyonghu_email like CONCAT('%',#{params.fabuyonghuEmail},'%')
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

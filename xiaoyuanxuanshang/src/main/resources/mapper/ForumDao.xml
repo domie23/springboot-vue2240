@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ForumDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.forum_name as forumName
+        ,a.jiequyonghu_id as jiequyonghuId
+        ,a.fabuyonghu_id as fabuyonghuId
+        ,a.users_id as usersId
+        ,a.forum_content as forumContent
+        ,a.super_ids as superIds
+        ,a.forum_types as forumTypes
+        ,a.forum_state_types as forumStateTypes
+        ,a.insert_time as insertTime
+        ,a.update_time as updateTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ForumView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,jiequyonghu.jiequyonghu_name as jiequyonghuName
+        ,jiequyonghu.jiequyonghu_phone as jiequyonghuPhone
+        ,jiequyonghu.jiequyonghu_id_number as jiequyonghuIdNumber
+        ,jiequyonghu.jiequyonghu_photo as jiequyonghuPhoto
+        ,jiequyonghu.new_money as newMoney
+        ,jiequyonghu.wanchenglv as wanchenglv
+        ,jiequyonghu.jiequyonghu_email as jiequyonghuEmail
+        ,fabuyonghu.fabuyonghu_name as fabuyonghuName
+        ,fabuyonghu.fabuyonghu_phone as fabuyonghuPhone
+        ,fabuyonghu.fabuyonghu_id_number as fabuyonghuIdNumber
+        ,fabuyonghu.fabuyonghu_photo as fabuyonghuPhoto
+        ,fabuyonghu.new_money as newMoney
+        ,fabuyonghu.fabuyonghu_email as fabuyonghuEmail
+        ,users.username as uusername
+        ,users.password as upassword
+        ,users.role as urole
+        ,users.addtime as uaddtime
+
+        FROM forum  a
+        left JOIN jiequyonghu jiequyonghu ON a.jiequyonghu_id = jiequyonghu.id
+        left JOIN fabuyonghu fabuyonghu ON a.fabuyonghu_id = fabuyonghu.id
+        left JOIN users users ON a.users_id = users.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.forumName != '' and params.forumName != null and params.forumName != 'null' ">
+                and a.forum_name like CONCAT('%',#{params.forumName},'%')
+            </if>
+            <if test="params.jiequyonghuId != null and params.jiequyonghuId != ''">
+                and (
+                    a.jiequyonghu_id = #{params.jiequyonghuId}
+                )
+            </if>
+            <if test="params.fabuyonghuId != null and params.fabuyonghuId != ''">
+                and (
+                    a.fabuyonghu_id = #{params.fabuyonghuId}
+                )
+            </if>
+            <if test="params.usersId != null and params.usersId != ''">
+                and (
+                    a.users_id = #{params.usersId}
+                )
+            </if>
+            <if test=" params.forumContent != '' and params.forumContent != null and params.forumContent != 'null' ">
+                and a.forum_content like CONCAT('%',#{params.forumContent},'%')
+            </if>
+            <if test="params.superIdsStart != null and params.superIdsStart != ''">
+                <![CDATA[  and a.super_ids >= #{params.superIdsStart}   ]]>
+            </if>
+            <if test="params.superIdsEnd != null and params.superIdsEnd != ''">
+                <![CDATA[  and a.super_ids <= #{params.superIdsEnd}   ]]>
+            </if>
+             <if test="params.superIds != null and params.superIds != ''">
+                and a.super_ids = #{params.superIds}
+             </if>
+            <if test="params.forumTypes != null and params.forumTypes != ''">
+                and a.forum_types = #{params.forumTypes}
+            </if>
+            <if test="params.forumStateTypes != null and params.forumStateTypes != ''">
+                and a.forum_state_types = #{params.forumStateTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.updateTimeStart != '' and params.updateTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) >= UNIX_TIMESTAMP(#{params.updateTimeStart}) ]]>
+            </if>
+            <if test=" params.updateTimeEnd != '' and params.updateTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) <= UNIX_TIMESTAMP(#{params.updateTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断接取用户的id不为空 -->
+            <if test=" params.jiequyonghuIdNotNull != '' and params.jiequyonghuIdNotNull != null and params.jiequyonghuIdNotNull != 'null' ">
+                and a.jiequyonghu_id IS NOT NULL
+            </if>
+            <if test=" params.jiequyonghuName != '' and params.jiequyonghuName != null and params.jiequyonghuName != 'null' ">
+                and jiequyonghu.jiequyonghu_name like CONCAT('%',#{params.jiequyonghuName},'%')
+            </if>
+            <if test=" params.jiequyonghuPhone != '' and params.jiequyonghuPhone != null and params.jiequyonghuPhone != 'null' ">
+                and jiequyonghu.jiequyonghu_phone like CONCAT('%',#{params.jiequyonghuPhone},'%')
+            </if>
+            <if test=" params.jiequyonghuIdNumber != '' and params.jiequyonghuIdNumber != null and params.jiequyonghuIdNumber != 'null' ">
+                and jiequyonghu.jiequyonghu_id_number like CONCAT('%',#{params.jiequyonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and jiequyonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and jiequyonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.wanchenglvStart != null  and params.wanchenglvStart != '' ">
+                <![CDATA[  and jiequyonghu.wanchenglv >= #{params.wanchenglvStart}   ]]>
+            </if>
+            <if test="params.wanchenglvEnd != null  and params.wanchenglvEnd != '' ">
+                <![CDATA[  and jiequyonghu.wanchenglv <= #{params.wanchenglvEnd}   ]]>
+            </if>
+            <if test="params.wanchenglv != null  and params.wanchenglv != '' ">
+                and jiequyonghu.wanchenglv = #{params.wanchenglv}
+            </if>
+            <if test=" params.jiequyonghuEmail != '' and params.jiequyonghuEmail != null and params.jiequyonghuEmail != 'null' ">
+                and jiequyonghu.jiequyonghu_email like CONCAT('%',#{params.jiequyonghuEmail},'%')
+            </if>
+                <!-- 判断发布用户的id不为空 -->
+            <if test=" params.fabuyonghuIdNotNull != '' and params.fabuyonghuIdNotNull != null and params.fabuyonghuIdNotNull != 'null' ">
+                and a.fabuyonghu_id IS NOT NULL
+            </if>
+            <if test=" params.fabuyonghuName != '' and params.fabuyonghuName != null and params.fabuyonghuName != 'null' ">
+                and fabuyonghu.fabuyonghu_name like CONCAT('%',#{params.fabuyonghuName},'%')
+            </if>
+            <if test=" params.fabuyonghuPhone != '' and params.fabuyonghuPhone != null and params.fabuyonghuPhone != 'null' ">
+                and fabuyonghu.fabuyonghu_phone like CONCAT('%',#{params.fabuyonghuPhone},'%')
+            </if>
+            <if test=" params.fabuyonghuIdNumber != '' and params.fabuyonghuIdNumber != null and params.fabuyonghuIdNumber != 'null' ">
+                and fabuyonghu.fabuyonghu_id_number like CONCAT('%',#{params.fabuyonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and fabuyonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and fabuyonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test=" params.fabuyonghuEmail != '' and params.fabuyonghuEmail != null and params.fabuyonghuEmail != 'null' ">
+                and fabuyonghu.fabuyonghu_email like CONCAT('%',#{params.fabuyonghuEmail},'%')
+            </if>
+                <!-- 判断管理员的id不为空 -->
+            <if test=" params.usersIdNotNull != '' and params.usersIdNotNull != null and params.usersIdNotNull != 'null' ">
+                and a.users_id IS NOT NULL
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and users.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and users.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.role != '' and params.role != null and params.role != 'null' ">
+                and users.role like CONCAT('%',#{params.role},'%')
+            </if>
+            <if test=" params.addtimeStart != '' and params.addtimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(users.addtime) >= UNIX_TIMESTAMP(#{params.addtimeStart}) ]]>
+            </if>
+            <if test=" params.addtimeEnd != '' and params.addtimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(users.addtime) <= UNIX_TIMESTAMP(#{params.addtimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
